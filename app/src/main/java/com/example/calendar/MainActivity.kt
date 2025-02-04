@@ -7,11 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import com.example.calendar.ui.theme.CalendarTheme
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CalendarTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    BackgroundImage(Modifier.fillMaxSize())
                 }
             }
         }
@@ -31,17 +29,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun BackgroundImage(modifier: Modifier = Modifier) {
+    val image = painterResource(R.drawable.background_image)
+    Image(
+        painter = image,
+        contentDescription = null,
+        modifier = modifier.fillMaxSize(), // Ensure the image fills the available space
+        contentScale = ContentScale.Crop // Crop the image to fill the space
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CalendarTheme {
-        Greeting("Android")
-    }
 }

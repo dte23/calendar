@@ -119,7 +119,15 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
         OutlinedTextField(
             modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
             value = year,
-            onValueChange = { year = it },
+            onValueChange = { newValue ->
+                if (newValue.isEmpty() || newValue.toIntOrNull()?.let { it in 1..12 } == true) {
+                    month = newValue
+                    errorMessage = "" // Clear error message if input is valid
+                } else {
+                    month = newValue
+                    errorMessage = "Please enter a valid month (1-12)"
+                }
+            },
             label = { Text("Enter Year") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
@@ -128,7 +136,7 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
             Text(
                 text = errorMessage,
                 color = Color.Red, // Change color as needed
-                style = MaterialTheme.typography.displayMedium
+                style = MaterialTheme.typography.displaySmall
             )
         }
 

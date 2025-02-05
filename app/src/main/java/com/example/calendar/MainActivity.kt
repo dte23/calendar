@@ -120,12 +120,12 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
             modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
             value = year,
             onValueChange = { newValue ->
-                if (newValue.isEmpty() || newValue.toIntOrNull()?.let { it in 1..12 } == true) {
-                    month = newValue
+                if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
+                    year = newValue
                     errorMessage = "" // Clear error message if input is valid
                 } else {
-                    month = newValue
-                    errorMessage = "Please enter a valid month (1-12)"
+                    year = newValue
+                    errorMessage = "Please enter a valid year (integer)"
                 }
             },
             label = { Text("Enter Year") },

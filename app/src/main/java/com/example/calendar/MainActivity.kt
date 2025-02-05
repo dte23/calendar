@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.example.calendar.ui.theme.CalendarTheme
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -94,6 +95,7 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
+            modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
             value = month,
             onValueChange = { newValue ->
                 // Check if the new value is a valid number and within the range 1-12
@@ -101,18 +103,21 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
                     month = newValue
                     errorMessage = "" // Clear error message if input is valid
                 } else {
+                    month = newValue
                     errorMessage = "Please enter a valid month (1-12)"
                 }
             },
             label = { Text("Enter Month (1-12)") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             isError = errorMessage.isNotEmpty() // Indicate error state
+
         )
 
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
+            modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
             value = year,
             onValueChange = { year = it },
             label = { Text("Enter Year") },
@@ -126,7 +131,7 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
                 style = MaterialTheme.typography.displayMedium
             )
         }
-        
+
         Spacer(modifier = Modifier.height(160.dp))
 
         Button(

@@ -14,6 +14,7 @@ import com.example.calendar.ui.theme.CalendarTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -33,16 +34,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.IsoFields
-import android.util.Log
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.ClickableText
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,32 +49,34 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalendarTheme {
-                CalendarApp()
-            }
-        }
-    }
-}
+                var showCalendar by rememberSaveable { mutableStateOf(false) }
+                var month by rememberSaveable { mutableStateOf("") }
+                var year by rememberSaveable { mutableStateOf("") }
 
-@Composable
-fun CalendarApp() {
-    var showCalendar by rememberSaveable { mutableStateOf(false) }
-    var month by rememberSaveable { mutableStateOf("") }
-    var year by rememberSaveable { mutableStateOf("") }
-
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        BackgroundImage()
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            if (!showCalendar) {
-                GetInput(
-                    onSubmit = { enteredMonth, enteredYear ->
-                        month = enteredMonth
-                        year = enteredYear
-                        showCalendar = true
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    BackgroundImage()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        if (!showCalendar) {
+                            GetInput(
+                                onSubmit = { enteredMonth, enteredYear ->
+                                    month = enteredMonth
+                                    year = enteredYear
+                                    showCalendar = true
+                                }
+                            )
+                        } else {
+                            DrawCalendar(
+                                month = month.toIntOrNull() ?: 1,
+                                year = year.toIntOrNull() ?: 2024
+                            ) {
+                                showCalendar = false
+                            }
+                        }
                     }
-                )
-            } else {
-                DrawCalendar(month.toIntOrNull() ?: 1, year.toIntOrNull() ?: 2024) {
-                    showCalendar = false // Go back when tapped
                 }
             }
         }
@@ -88,8 +89,8 @@ fun BackgroundImage(modifier: Modifier = Modifier) {
     Image(
         painter = image,
         contentDescription = null,
-        modifier = modifier.fillMaxSize(), // Ensure the image fills the available space
-        contentScale = ContentScale.Crop // Crop the image to fill the space
+        modifier = modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop
     )
 }
 
@@ -98,6 +99,12 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
     var month by rememberSaveable { mutableStateOf("") }
     var year by rememberSaveable { mutableStateOf("") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
+
+    val invalidMonthError = stringResource(R.string.invalid_month_error)
+    val invalidYearError = stringResource(R.string.invalid_year_error)
+    val enterMonthLabel = stringResource(R.string.enter_month_label)
+    val enterYearLabel = stringResource(R.string.enter_year_label)
+    val showCalendarButton = stringResource(R.string.show_calendar_button)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -108,21 +115,18 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
             modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
             value = month,
             onValueChange = { newValue ->
-                // Check if the new value is a valid number and within the range 1-12
                 if (newValue.isEmpty() || newValue.toIntOrNull()?.let { it in 1..12 } == true) {
                     month = newValue
-                    errorMessage = "" // Clear error message if input is valid
+                    errorMessage = ""
                 } else {
                     month = newValue
-                    errorMessage = "Please enter a valid month (1-12)"
+                    errorMessage = invalidMonthError
                 }
             },
-            label = { Text("Enter Month (1-12)") },
+            label = { Text(enterMonthLabel) },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            isError = errorMessage.isNotEmpty() // Indicate error state
-
+            isError = errorMessage.isNotEmpty()
         )
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -132,20 +136,21 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
             onValueChange = { newValue ->
                 if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
                     year = newValue
-                    errorMessage = "" // Clear error message if input is valid
+                    errorMessage = ""
                 } else {
                     year = newValue
-                    errorMessage = "Please enter a valid year (integer)"
+                    errorMessage = invalidYearError
                 }
             },
-            label = { Text("Enter Year") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            label = { Text(enterYearLabel) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            isError = errorMessage.isNotEmpty()
         )
 
         if (errorMessage.isNotEmpty()) {
             Text(
                 text = errorMessage,
-                color = Color.Red, // Change color as needed
+                color = Color.Red,
                 style = MaterialTheme.typography.displaySmall
             )
         }
@@ -156,34 +161,58 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
             onClick = { onSubmit(month, year) },
             enabled = month.isNotEmpty() && year.isNotEmpty() && errorMessage.isEmpty()
         ) {
-            Text("Show Calendar")
+            Text(showCalendarButton)
         }
-
     }
 }
 
 @Composable
 fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
-    val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7 // Monday = 0, Sunday = 6
+    val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
     var selectedDayText by rememberSaveable { mutableStateOf("") }
-    val weekdays = listOf("", "M", "T", "O", "T", "F", "L", "S")
+    val workdaysMessage = stringResource(R.string.workdays_message)
+    val daysPassed = stringResource(R.string.days_passed)
+    val weekdays = listOf(
+        "",
+        stringResource(R.string.monday),
+        stringResource(R.string.tuesday),
+        stringResource(R.string.wednesday),
+        stringResource(R.string.thursday),
+        stringResource(R.string.friday),
+        stringResource(R.string.saturday),
+        stringResource(R.string.sunday),
+    )
     val months = listOf(
-        "Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
-        "August", "September", "Oktober", "November", "Desember"
+        stringResource(R.string.january),
+        stringResource(R.string.february),
+        stringResource(R.string.march),
+        stringResource(R.string.april),
+        stringResource(R.string.may),
+        stringResource(R.string.june),
+        stringResource(R.string.july),
+        stringResource(R.string.august),
+        stringResource(R.string.september),
+        stringResource(R.string.october),
+        stringResource(R.string.november),
+        stringResource(R.string.december),
     )
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Row {
-            Text(text = "${months[month - 1]} $year", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "${months[month - 1]} $year",
+                style = MaterialTheme.typography.headlineSmall
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-
         Row {
             weekdays.forEach { day ->
                 Box(
@@ -224,11 +253,13 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                             contentAlignment = Alignment.Center
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                                val dayOfYear = LocalDate.of(year, month, dayCounter).dayOfYear
+                                val currentDay = dayCounter // Capture current day value
+                                val dayOfYear = LocalDate.of(year, month, currentDay).dayOfYear // Use currentDay here
+
                                 Text(
-                                    text = dayCounter.toString(),
+                                    text = currentDay.toString(),
                                     modifier = Modifier.clickable {
-                                        selectedDayText = "$dayCounter.$month: ${dayOfYear - 1} dager siden 1. januar."
+                                        selectedDayText = "$currentDay.$month: ${dayOfYear - 1} $daysPassed"
                                     }
                                 )
                                 dayCounter++
@@ -241,8 +272,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Denne måneden har $workDays arbeidsdager.", fontSize = 14.sp)
-        // Display the selected day's message here
+        Text(text = workdaysMessage, fontSize = 14.sp)
         if (selectedDayText.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = selectedDayText, fontSize = 16.sp)

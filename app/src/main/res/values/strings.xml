@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">Calendar</string>
+
+    <string name="enter_month_label">Enter Month (1-12)</string>
+    <string name="enter_year_label">Enter Year</string>
+    <string name="invalid_month_error">Please enter a valid month (1-12)</string>
+    <string name="invalid_year_error">Please enter a valid year (integer)</string>
+    <string name="show_calendar_button">Show Calendar</string>
+    <string name="back_button">Back</string>
+    <string name="workdays_message">Denne måneden har %d arbeidsdager.</string>
+    <string name="selected_day_message">.%d: %d dager siden 1. januar.</string>
+
+    <!-- Days of the week abbreviations -->
+    <string name="monday">M</string>
+    <string name="tuesday">T</string>
+    <string name="wednesday">O</string>
+    <string name="thursday">T</string>
+    <string name="friday">F</string>
+    <string name="saturday">L</string>
+    <string name="sunday">S</string>
+
+    <!-- Month names -->
+    <string name="january">Januar</string>
+    <string name="february">Februar</string>
+    <string name="march">Mars</string>
+    <string name="april">April</string>
+    <string name="may">Mai</string>
+    <string name="june">Juni</string>
+    <string name="july">Juli</string>
+    <string name="august">August</string>
+    <string name="september">September</string>
+    <string name="october">Oktober</string>
+    <string name="november">November</string>
+    <string name="december">Desember</string>
+
+    <string name="days_passed">dager siden 1. januar.</string>
 </resources>

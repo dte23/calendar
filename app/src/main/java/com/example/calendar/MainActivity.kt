@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.IsoFields
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.ClickableText
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,12 +166,12 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
 fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
     val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7 // Monday = 0, Sunday = 6
-
-    val weekdays = listOf("", "M", "T", "O", "T", "F", "L", "S") // Include "Uke" for week numbers
+    var selectedDayText by rememberSaveable { mutableStateOf("") }
+    val weekdays = listOf("", "M", "T", "O", "T", "F", "L", "S")
     val months = listOf(
         "Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
         "August", "September", "Oktober", "November", "Desember"
-    ) // Norwegian months
+    )
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -181,14 +184,10 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Weekday Headers including "Uke" for week numbers
         Row {
             weekdays.forEach { day ->
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .border(1.dp, Color.Gray)
+                    modifier = Modifier.weight(1f).aspectRatio(1f).border(1.dp, Color.Black)
                         .background(Color.Black.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -197,7 +196,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
             }
         }
 
-        // Days Grid with Week Numbers
         val totalCells = daysInMonth + firstDayOfMonth
         val rows = (totalCells / 7) + if (totalCells % 7 == 0) 0 else 1
 
@@ -210,35 +208,32 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                     .get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
 
                 Row {
-                    // Week Number Column
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .border(1.dp, Color.Gray)
+                        modifier = Modifier.weight(1f).aspectRatio(1f).border(1.dp, Color.Black)
                             .background(Color.Black.copy(alpha = 0.3f)),
-                    contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(text = weekNumber.toString(), fontWeight = FontWeight.Bold)
                     }
 
-                    // Days of the week
                     for (col in 0 until 7) {
                         val index = row * 7 + col
                         Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .border(1.dp, Color.Gray)
+                            modifier = Modifier.weight(1f).aspectRatio(1f).border(1.dp, Color.Black)
                                 .background(if (index % 7 == 6) Color.Red.copy(alpha = 0.3f) else Color.Black.copy(alpha = 0.3f)),
                             contentAlignment = Alignment.Center
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                                Text(text = dayCounter.toString())
+                                val dayOfYear = LocalDate.of(year, month, dayCounter).dayOfYear
+                                Text(
+                                    text = dayCounter.toString(),
+                                    modifier = Modifier.clickable {
+                                        selectedDayText = "$dayCounter.$month: ${dayOfYear - 1} dager siden 1. januar."
+                                    }
+                                )
                                 dayCounter++
                                 if (index % 7 != 6 && index % 7 != 5) workDays++
                             }
-
                         }
                     }
                 }
@@ -246,11 +241,13 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
         Text(text = "Denne måneden har $workDays arbeidsdager.", fontSize = 14.sp)
-
+        // Display the selected day's message here
+        if (selectedDayText.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = selectedDayText, fontSize = 16.sp)
+        }
         Spacer(modifier = Modifier.height(8.dp))
-
         Button(onClick = onBack) {
             Text("Back")
         }

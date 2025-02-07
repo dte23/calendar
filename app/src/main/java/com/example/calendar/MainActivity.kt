@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -71,8 +72,8 @@ class MainActivity : ComponentActivity() {
                             )
                         } else {
                             DrawCalendar(
-                                month = month.toIntOrNull() ?: 1,
-                                year = year.toIntOrNull() ?: 2024
+                                month = month.toInt(),
+                                year = year.toInt()
                             ) {
                                 showCalendar = false
                             }
@@ -172,7 +173,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
     val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
     var showDialog by rememberSaveable { mutableStateOf(false) }
-    var daysSinceStartOfYear by rememberSaveable { mutableStateOf(0) }
+    var daysSinceStartOfYear by rememberSaveable { mutableIntStateOf(0) }
 
     val daysPassedDialogTitle = stringResource(R.string.days_passed_dialog_title)
     val daysPassedMessage = stringResource(R.string.days_passed_message)
@@ -262,8 +263,8 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                                 Text(
                                     text = currentDay.toString(),
                                     modifier = Modifier.clickable {
-                                        daysSinceStartOfYear = dayOfYear - 1 // Antall dager siden 1. januar
-                                        showDialog = true // Vis dialog
+                                        daysSinceStartOfYear = dayOfYear - 1
+                                        showDialog = true
                                     }
                                 )
                                 dayCounter++

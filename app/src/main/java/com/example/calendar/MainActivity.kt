@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -168,12 +169,13 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
 
 @Composable
 fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
-    val today = LocalDate.now()
-
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
     val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
-    var selectedDayText by rememberSaveable { mutableStateOf("") }
-    val daysPassed = stringResource(R.string.days_passed)
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var daysSinceStartOfYear by rememberSaveable { mutableStateOf(0) }
+
+    val daysPassedDialogTitle = stringResource(R.string.days_passed_dialog_title)
+    val daysPassedMessage = stringResource(R.string.days_passed_message)
     val weekdays = listOf(
         "",
         stringResource(R.string.monday),
@@ -254,13 +256,14 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                             contentAlignment = Alignment.Center
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                                val currentDay = dayCounter // Capture current day value
-                                val dayOfYear = LocalDate.of(year, month, currentDay).dayOfYear // Use currentDay here
+                                val currentDay = dayCounter
+                                val dayOfYear = LocalDate.of(year, month, currentDay).dayOfYear
 
                                 Text(
                                     text = currentDay.toString(),
                                     modifier = Modifier.clickable {
-                                        selectedDayText = "$currentDay.$month:    ${dayOfYear - 1} $daysPassed"
+                                        daysSinceStartOfYear = dayOfYear - 1 // Antall dager siden 1. januar
+                                        showDialog = true // Vis dialog
                                     }
                                 )
                                 dayCounter++
@@ -268,6 +271,18 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                             }
                         }
                     }
+                }
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text(daysPassedDialogTitle) },
+                        text = { Text("$daysSinceStartOfYear $daysPassedMessage") },
+                        confirmButton = {
+                            Button(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -277,10 +292,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
             text = stringResource(R.string.workdays_message, workDays),
             fontSize = 18.sp
         )
-        if (selectedDayText.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedDayText, fontSize = 18.sp)
-        }
+
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = onBack) {
             Text("Back")

@@ -168,10 +168,11 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
 
 @Composable
 fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
+    val today = LocalDate.now()
+
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
     val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
     var selectedDayText by rememberSaveable { mutableStateOf("") }
-    val workdaysMessage = stringResource(R.string.workdays_message)
     val daysPassed = stringResource(R.string.days_passed)
     val weekdays = listOf(
         "",
@@ -259,7 +260,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                                 Text(
                                     text = currentDay.toString(),
                                     modifier = Modifier.clickable {
-                                        selectedDayText = "$currentDay.$month: ${dayOfYear - 1} $daysPassed"
+                                        selectedDayText = "$currentDay.$month:    ${dayOfYear - 1} $daysPassed"
                                     }
                                 )
                                 dayCounter++
@@ -272,10 +273,13 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = workdaysMessage, fontSize = 14.sp)
+        Text(
+            text = stringResource(R.string.workdays_message, workDays),
+            fontSize = 18.sp
+        )
         if (selectedDayText.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedDayText, fontSize = 16.sp)
+            Text(text = selectedDayText, fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = onBack) {

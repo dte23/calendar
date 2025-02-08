@@ -232,7 +232,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         val totalCells = daysInMonth + firstDayOfMonth
         val rows = (totalCells / 7) + if (totalCells % 7 == 0) 0 else 1
 
-        var workDays = 0
         var dayCounter = 1
 
         Column {
@@ -258,39 +257,26 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
                                 val currentDay = dayCounter
-                                val dayOfYear = LocalDate.of(year, month, currentDay).dayOfYear
 
                                 Text(
                                     text = currentDay.toString(),
                                     modifier = Modifier.clickable {
-                                        daysSinceStartOfYear = dayOfYear - 1
+                                        daysSinceStartOfYear = calculateDaysSinceJanuaryFirst(currentDay, month, year)
                                         showDialog = true
                                     }
                                 )
                                 dayCounter++
-                                if (index % 7 != 6 && index % 7 != 5) workDays++
                             }
                         }
                     }
                 }
-                if (showDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDialog = false },
-                        title = { Text(daysPassedDialogTitle) },
-                        text = { Text("$daysSinceStartOfYear $daysPassedMessage") },
-                        confirmButton = {
-                            Button(onClick = { showDialog = false }) {
-                                Text("OK")
-                            }
-                        }
-                    )
-                }
+
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.workdays_message, workDays),
+            text = stringResource(R.string.workdays_message, calculateWorkDays(month, year)),
             fontSize = 18.sp
         )
 
@@ -299,4 +285,44 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
             Text("Back")
         }
     }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(daysPassedDialogTitle) },
+            text = { Text("$daysSinceStartOfYear $daysPassedMessage") },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+}
+
+fun calculateWorkDays(month: Int, year: Int): Int {
+    val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
+    // Finn antall tomme celler i første rad (avhengig av ukedagsrekkefølgen)
+    val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
+    var workDays = 0
+    var dayCounter = 1
+    val totalCells = daysInMonth + firstDayOfMonth
+    val rows = (totalCells / 7) + if (totalCells % 7 == 0) 0 else 1
+
+    for (row in 0 until rows) {
+        for (col in 0 until 7) {
+            val index = row * 7 + col
+            if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
+                // Anta at col 5 og 6 (altså 0-basert: 5 og 6) er lørdag og søndag
+                if (col != 5 && col != 6) {
+                    workDays++
+                }
+                dayCounter++
+            }
+        }
+    }
+    return workDays
+}
+
+fun calculateDaysSinceJanuaryFirst(day: Int, month: Int, year: Int): Int {
+    return LocalDate.of(year, month, day).dayOfYear - 1
 }

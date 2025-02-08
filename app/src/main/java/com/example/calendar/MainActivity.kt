@@ -320,7 +320,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
 
 fun calculateWorkDays(month: Int, year: Int): Int {
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()
-    // Finn antall tomme celler i første rad (avhengig av ukedagsrekkefølgen)
     val firstDayOfMonth = (LocalDate.of(year, month, 1).dayOfWeek.value + 6) % 7
     var workDays = 0
     var dayCounter = 1
@@ -331,7 +330,6 @@ fun calculateWorkDays(month: Int, year: Int): Int {
         for (col in 0 until 7) {
             val index = row * 7 + col
             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                // Anta at col 5 og 6 (altså 0-basert: 5 og 6) er lørdag og søndag
                 if (col != 5 && col != 6) {
                     workDays++
                 }

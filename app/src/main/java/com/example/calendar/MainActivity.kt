@@ -40,6 +40,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import java.time.LocalDate
 import java.time.YearMonth
@@ -114,7 +116,9 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
-            modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
+            modifier = Modifier
+                .background(color = Color.Black.copy(alpha = 0.3f))
+                .semantics { testTag = "monthInput" },
             value = month,
             onValueChange = { newValue ->
                 if (newValue.isEmpty() || newValue.toIntOrNull()?.let { it in 1..12 } == true) {
@@ -133,7 +137,9 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            modifier = Modifier.background(color = Color.Black.copy(alpha = 0.3f)),
+            modifier = Modifier
+                .background(color = Color.Black.copy(alpha = 0.3f))
+                .semantics { testTag = "yearInput" },
             value = year,
             onValueChange = { newValue ->
                 if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
@@ -161,10 +167,9 @@ fun GetInput(onSubmit: (String, String) -> Unit) {
 
         Button(
             onClick = { onSubmit(month, year) },
-            enabled = month.isNotEmpty() && year.isNotEmpty() && errorMessage.isEmpty()
-        ) {
-            Text(showCalendarButton)
-        }
+            enabled = month.isNotEmpty() && year.isNotEmpty() && errorMessage.isEmpty(),
+            modifier = Modifier.semantics { testTag = "showCalendar" }
+        ) { Text(showCalendarButton) }
     }
 }
 
@@ -250,9 +255,14 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
 
                     for (col in 0 until 7) {
                         val index = row * 7 + col
+                        val currentDay = dayCounter
                         Box(
-                            modifier = Modifier.weight(1f).aspectRatio(1f).border(1.dp, Color.Black)
-                                .background(if (index % 7 == 6) Color.Red.copy(alpha = 0.3f) else Color.Black.copy(alpha = 0.3f)),
+                            modifier = Modifier
+                                .weight(1f).aspectRatio(1f).border(1.dp, Color.Black)
+                                .background(
+                                    if (index % 7 == 6) Color.Red.copy(alpha = 0.3f)
+                                    else Color.Black.copy(alpha = 0.3f))
+                                .semantics { testTag = "day_$currentDay" },
                             contentAlignment = Alignment.Center
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
@@ -288,8 +298,17 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(daysPassedDialogTitle) },
-            text = { Text("$daysSinceStartOfYear $daysPassedMessage") },
+            title = {
+                Text(
+                    text = daysPassedDialogTitle
+                )
+            },
+            text = {
+                Text(
+                    "$daysSinceStartOfYear $daysPassedMessage",
+                    modifier = Modifier.semantics { testTag = "daysPassedDialog" }
+                )
+            },
             confirmButton = {
                 Button(onClick = { showDialog = false }) {
                     Text("OK")

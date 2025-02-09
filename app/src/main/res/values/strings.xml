@@ -8,7 +8,7 @@
     <string name="show_calendar_button">Show Calendar</string>
     <string name="back_button">Back</string>
     <string name="workdays_message">This month has %d workdays.</string>
-    <string name="days_passed_dialog_title">Days after january 1</string>
+    <string name="days_passed_dialog_title">Elapsed days this year</string>
     <string name="days_passed_message">days have passed since january 1.</string>
 
     <!-- Days of the week abbreviations -->

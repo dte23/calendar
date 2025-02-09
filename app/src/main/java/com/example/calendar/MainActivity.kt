@@ -286,8 +286,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
             )
         }
 
-       // Spacer(modifier = Modifier.height(8.dp))
-
         // Weekdays header row.
         Row {
             weekdays.forEach { day ->
@@ -334,16 +332,16 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                     // Seven cells for the days of the week
                     for (col in 0 until 7) {
                         val index = row * 7 + col
+                        val currentDay = dayCounter
                         Box(
                             modifier = Modifier
                                 .size(cellSize)
                                 .border(1.dp, Color.Black)
                                 .background(
-                                    // red tint for sundays/holidays(nyi)
                                     if (col == 6) Color.Red.copy(alpha = 0.3f)
                                     else Color.Black.copy(alpha = 0.3f)
                                 )
-                                .semantics { testTag = "day_$dayCounter" },
+                                .semantics { testTag = "day_$currentDay" },
                             contentAlignment = Alignment.Center
                         ) {
                             if (index >= firstDayOfMonth && dayCounter <= daysInMonth) {
@@ -413,10 +411,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         )
     }
 }
-
-
-// Calculate workdays func
-
 
 fun calculateWorkDays(month: Int, year: Int): Int {
     val daysInMonth = YearMonth.of(year, month).lengthOfMonth()

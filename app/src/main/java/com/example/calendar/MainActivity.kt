@@ -318,21 +318,6 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                 }
                 Row {
                     // Week number cell.
-                    Box(
-                        modifier = Modifier
-                            .size(cellSize)
-                            .border(1.dp, Color.Black)
-                            .background(Color.Black.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (weekNumber != 0) {
-                            Text(text = weekNumber.toString(), fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    // Seven cells for the days of the week
-                    for (col in 0 until 7) {
-                        val index = row * 7 + col
-                        val currentDay = dayCounter
                         Box(
                             modifier = Modifier
                                 .size(cellSize)

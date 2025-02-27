@@ -278,6 +278,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                 .border(1.dp, Color.Black)
                 .padding(vertical = 10.dp),   // Adjust vertical padding to taste.
             contentAlignment = Alignment.Center
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "${months[month - 1]} $year",
@@ -318,6 +319,21 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
                 }
                 Row {
                     // Week number cell.
+                    Box(
+                        modifier = Modifier
+                            .size(cellSize)
+                            .border(1.dp, Color.Black)
+                            .background(Color.Black.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (weekNumber != 0) {
+                            Text(text = weekNumber.toString(), fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    // Seven cells for the days of the week
+                    for (col in 0 until 7) {
+                        val index = row * 7 + col
+                        val currentDay = dayCounter
                         Box(
                             modifier = Modifier
                                 .size(cellSize)

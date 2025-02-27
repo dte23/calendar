@@ -261,7 +261,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
     val totalHorizontalPadding = 32.dp
     val cellSize = (configuration.screenWidthDp.dp - totalHorizontalPadding) / 8
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -287,7 +287,7 @@ fun DrawCalendar(month: Int, year: Int, onBack: () -> Unit) {
         }
 
         // Weekdays header row.
-        Row {
+        Column {
             weekdays.forEach { day ->
                 Box(
                     modifier = Modifier
